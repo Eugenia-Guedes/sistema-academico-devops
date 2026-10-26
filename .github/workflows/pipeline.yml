@@ -1,0 +1,70 @@
+name: Pipeline CI/CD - Sistema Academico
+
+on:
+  pull_request:
+    branches: [main]
+
+  push:
+    branches: [main]
+
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+
+  validacao:
+    name: Executar testes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+
+      - name: Executar testes automatizados
+        run: pytest -v
+
+  build:
+    name: Gerar build
+    needs: validacao
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Gerar pacote da aplicacao
+        run: |
+          zip -r sistema-academico.zip sistema.py
+
+      - name: Salvar artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: sistema-academico
+          path: sistema-academico.zip
+
+  deploy:
+    name: Deploy em producao
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Simular deploy
+        run: |
+          echo "Iniciando deploy do sistema academico..."
+          echo "Versao: ${{ github.event.release.tag_name }}"
+          echo "Deploy realizado com sucesso!"
