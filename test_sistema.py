@@ -9,7 +9,7 @@ from sistema import (
 # Teste 1 - Calcular média
 def test_calcular_media():
     resultado = calcular_media(8, 6)
-    assert resultado == 10  # ERRO PROPOSITAL
+    assert resultado == 7
 
 
 # Teste 2 - Verificar aprovação
